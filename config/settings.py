@@ -20,7 +20,6 @@ class Settings:
   ui_password: str
 
   headless: bool
-  slow_mo: int
   browser: str
 
   default_timeout: int
