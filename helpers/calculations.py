@@ -4,8 +4,6 @@ Business Rules (from spec):
     - 26 paychecks/year
     - Benefits - $1,000/year
     - Dependant - $500/year additional cost
-    
-    Annual = (2000 * 26)
 """
 
 from dataclasses import dataclass
