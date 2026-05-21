@@ -1,9 +1,9 @@
 """
 Business Rules (from spec):
-    - All employees get $2,000/paycheck
-    - 26 paychecks/year
-    - Benefits - $1,000/year
-    - Dependant - $500/year additional cost
+  - All employees get $2,000/paycheck
+  - 26 paychecks/year
+  - Benefits - $1,000/year
+  - Dependant - $500/year additional cost
 """
 
 from dataclasses import dataclass
