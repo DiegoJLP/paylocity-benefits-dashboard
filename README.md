@@ -3,6 +3,9 @@
 End-to-end test automation suite for the Paylocity Benefits Dashboard, built with Playwright + pytest. Covers UI, API, and accessibility layers with parallel execution and Allure reporting.
 
 ---
+## Last run results:
+<img width="1431" height="848" alt="Captura de Pantalla 2026-05-22 a la(s) 13 19 26" src="https://github.com/user-attachments/assets/fd7e3500-80bc-4ebe-8877-acc229c22457" />
+
 
 ## Test Documentation
 
