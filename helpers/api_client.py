@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 class ApiClient:
   def __init__(self, playwright: Playwright) -> None:
     self._context: APIRequestContext = playwright.request.new_context(
-        base_url=settings.api_base_url,
-        extra_http_headers={
-            "Authorization": f"Basic {settings.auth_token}",
-            "Content-Type": "application/json",
-        },
+      base_url=settings.api_base_url,
+      extra_http_headers={
+        "Authorization": f"Basic {settings.auth_token}",
+        "Content-Type": "application/json",
+      },
     )
 
   def dispose(self) -> None:
@@ -37,9 +37,9 @@ class ApiClient:
   def create_employee(self, payload: dict):
     """
     Args:
-        payload: dict matching the Employee request schema (ideally from data_factory)
+      payload: dict matching the Employee request schema (ideally from data_factory)
     Expects:
-        Playwright APIResponse object
+      Playwright APIResponse object
     """
     logger.info("POST /api/Employees | payload: %s", payload)
     response = self._context.post("/api/Employees", data=payload)
@@ -57,7 +57,7 @@ class ApiClient:
   def get_employee(self, employee_id: str):
     """
     Args:
-        employee_id: UUID string of the employee to retrieve
+      employee_id: UUID string of the employee to retrieve
     """
     logger.info("GET /api/Employees/%s", employee_id)
     response = self._context.get(f"/api/Employees/{employee_id}")
@@ -70,7 +70,7 @@ class ApiClient:
     Update an existing employee.
 
     Args:
-        payload: dict with id plus fields to update
+      payload: dict with id plus fields to update
     """
     logger.info("PUT /api/Employees | payload: %s", payload)
     response = self._context.put("/api/Employees", data=payload)
@@ -81,7 +81,7 @@ class ApiClient:
   def delete_employee(self, employee_id: str):
     """
     Args:
-        employee_id: UUID string of the employee to delete
+      employee_id: UUID string of the employee to delete
     """
     logger.info("DELETE /api/Employees/%s", employee_id)
     response = self._context.delete(f"/api/Employees/{employee_id}")
@@ -96,11 +96,11 @@ class ApiClient:
     """
     logger.info("GET /api/Employees (no auth)")
     response = self._context.get(
-        "/api/Employees",
-        headers={
-            "Authorization": "",
-            "Content-Type": "application/json",
-        },
+      "/api/Employees",
+      headers={
+        "Authorization": "",
+        "Content-Type": "application/json",
+      },
     )
     self._log_response(response)
     return response
@@ -113,11 +113,11 @@ class ApiClient:
     """
     logger.info("GET /api/Employees (bad auth)")
     response = self._context.get(
-        "/api/Employees",
-        headers={
-            "Authorization": "Basic invalidtoken==",
-            "Content-Type": "application/json",
-        },
+      "/api/Employees",
+      headers={
+        "Authorization": "Basic invalidtoken==",
+        "Content-Type": "application/json",
+      },
     )
     self._log_response(response)
     return response
@@ -131,21 +131,21 @@ class ApiClient:
     with a message instead of a vague KeyError or AttributeError
 
     Args:
-        payload: Valid employee payload.
+      payload: Valid employee payload.
 
     Returns:
-        UUID string of the created employee.
+      UUID string of the created employee.
     """
     response = self.create_employee(payload)
     assert response.status == 200, (
-        f"Setup failed: could not create test employee\n"
-        f"Status: {response.status}\n"
-        f"Body: {response.text()}"
+      f"Setup failed: could not create test employee\n"
+      f"Status: {response.status}\n"
+      f"Body: {response.text()}"
     )
     data = response.json()
     employee_id = data.get("id")
     assert employee_id, (
-        f"Response did not include id field: {data}"
+      f"Response did not include id field: {data}"
     )
     logger.info("Created employee with id: %s", employee_id)
     return employee_id
@@ -162,9 +162,9 @@ class ApiClient:
     """
     response = self.delete_employee(employee_id)
     if response.status not in (200, 404):
-        logger.warning(
-            "Unexpected status %s when cleaning up employee %s", response.status, employee_id,
-        )
+      logger.warning(
+        "Unexpected status %s when cleaning up employee %s", response.status, employee_id,
+      )
 
   @staticmethod
   def _log_response(response) -> None:
@@ -173,17 +173,17 @@ class ApiClient:
     Attaches full details to the Allure report as a step artifact.
     """
     try:
-        body = response.text()[:500]
+      body = response.text()[:500]
     except Exception:
-        body = "<unreadable>"
+      body = "<unreadable>"
 
     logger.debug(
-        "Response | status: %s | body: %s",
-        response.status,
-        body,
+      "Response | status: %s | body: %s",
+      response.status,
+      body,
     )
     allure.attach(
-        f"Status: {response.status}\nBody:\n{body}",
-        name="API Response",
-        attachment_type=allure.attachment_type.TEXT,
+      f"Status: {response.status}\nBody:\n{body}",
+      name="API Response",
+      attachment_type=allure.attachment_type.TEXT,
     )
