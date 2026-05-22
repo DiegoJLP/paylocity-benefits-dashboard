@@ -1,0 +1,325 @@
+EmployeeClient.js
+class EmployeeClient {
+  getRoutePrefix() {
+    var isProd = window.location.href.includes("Prod");
+    var isStage = window.location.href.includes("Stage");
+
+    if (isProd === true) {
+      return "/Prod/";
+    }
+
+    if (isStage === true) {
+      return "/Stage/";
+    }
+
+    return "/";
+  }
+
+  get(done) {
+    $.ajax({
+      method: "GET",
+      url: this.getRoutePrefix() + "api/employees",
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      dataType: 'json'
+    })
+    .done(function(data) {
+      done(data);
+    });
+  }
+
+  add(firstName, lastName, dependants, done) {
+    $.ajax({
+      method: "POST",
+      url: this.getRoutePrefix() + "api/employees",
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      dataType: 'json',
+      data: JSON.stringify({
+        firstName: firstName,
+        lastName: lastName,
+        dependants: dependants
+      })
+    })
+    .done(function () {
+      done();
+    });
+  }
+
+  delete(id, done) {
+    $.ajax({
+      method: "DELETE",
+      url: this.getRoutePrefix() + "api/employees/" + id
+    })
+    .done(function () {
+      done();
+    });
+  }
+
+  update(id, firstName, lastName, dependants, done) {
+    $.ajax({
+      method: "PUT",
+      url: this.getRoutePrefix() + "api/employees",
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      data: JSON.stringify({
+        id: id,
+        firstName: firstName,
+        lastName: lastName,
+        dependants: dependants
+      })
+    })
+    .done(function () {
+      done();
+    });
+  }
+}
+
+Benefits:
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employees - Paylocity Benefits Dashboard</title>
+
+  
+  
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+<meta name="x-stylesheet-fallback-test" content="" class="sr-only" /><script>!function(a,b,c,d){var e,f=document,g=f.getElementsByTagName("SCRIPT"),h=g[g.length-1].previousElementSibling,i=f.defaultView&&f.defaultView.getComputedStyle?f.defaultView.getComputedStyle(h):h.currentStyle;if(i&&i[a]!==b)for(e=0;e<c.length;e++)f.write('<link href="'+c[e]+'" '+d+"/>")}("position","absolute",["/Prod/lib/bootstrap/dist/css/bootstrap.min.css"], "rel=\u0022stylesheet\u0022 crossorigin=\u0022anonymous\u0022 integrity=\u0022sha384-ggOyR0iXCbMQv3Xipma34MD\u002BdH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T\u0022 ");</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.css" />
+  
+  <link rel="stylesheet" href="/Prod/css/site.css" />
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom mb-3">
+      <div class="container">
+        <a class="navbar-brand" href="/Prod/Benefits">Paylocity Benefits Dashboard</a>
+          <ul class="nav justify-content-end">
+            <li class="nav-item">
+              <a href="/Prod/Account/LogOut">Log Out</a>
+            </li>
+          </ul>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <main role="main" class="pb-3">
+      
+<div class="rounded mb-3">
+  <table class="table table-striped" id="employeesTable">
+    <thead class="thead-dark">
+      <tr>
+        <th>Id</th>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Dependents</th>
+        <th>Salary</th>
+        <th>Gross Pay</th>
+        <th>Benefits Cost</th>
+        <th>Net Pay</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody></tbody>
+  </table>
+</div>
+
+<button type="button" id="add" class="btn btn-primary">Add Employee</button>
+
+<div class="modal" id="employeeModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Employee</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form role="form">
+          <input type="hidden" id="id" name="id" />
+
+          <div class="form-group row">
+            <label for="firstName" class="col-sm-2 col-form-label">First Name:</label>
+            <div class="col-sm-10">
+              <input type="text" id="firstName" name="firstName" class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="lastName" class="col-sm-2 col-form-label">Last Name:</label>
+            <div class="col-sm-10">
+              <input type="text" id="lastName" name="lastName" class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="dependants" class="col-sm-2 col-form-label">Dependents:</label>
+            <div class="col-sm-2">
+              <input type="text" id="dependants" name="dependants" class="form-control" />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id='addEmployee'>Add</button>
+        <button type="button" class="btn btn-primary" id='updateEmployee'>Update</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="deleteModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Employee</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <input type="hidden" id="deleteId" />
+          <div class="col-sm-12">
+            Delete employee record for
+            <span id="deleteFirstName"></span>
+            <span id="deleteLastName"></span>?
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id='deleteEmployee'>Delete</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    </main>
+  </div>
+
+  <footer class="border-top footer text-muted">
+    <div class="container">
+      &copy; 2026 - Paylocity
+    </div>
+  </footer>
+
+  
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" crossorigin="anonymous" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=">
+    </script>
+<script>(window.jQuery||document.write("\u003Cscript src=\u0022/Prod/lib/jquery/dist/jquery.min.js\u0022 crossorigin=\u0022anonymous\u0022 integrity=\u0022sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=\u0022\u003E\u003C/script\u003E"));</script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o">
+    </script>
+<script>(window.jQuery && window.jQuery.fn && window.jQuery.fn.modal||document.write("\u003Cscript src=\u0022/Prod/lib/bootstrap/dist/js/bootstrap.bundle.min.js\u0022 crossorigin=\u0022anonymous\u0022 integrity=\u0022sha384-xrRywqdh3PHs8keKZN\u002B8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o\u0022\u003E\u003C/script\u003E"));</script>
+  
+  <script src="/Prod/js/site.js?v=4q1jwFhaPaZgr8WAUSrux6hAuh0XDg9kPS3xIVq36I0"></script>
+
+  
+  <script type="text/javascript" src="/Prod/js/employeeClient.js"></script>
+  <script type="text/javascript">
+    var employeeClient;
+
+    $(function() {
+      employeeClient = new EmployeeClient();
+      loadTable();
+    });
+
+    $('#employeeModal').on('shown.bs.modal', function () {
+      $('#firstName').trigger('focus')
+    });
+
+    $('#add').on('click', function () {
+      $('#id').val('');
+      $('#firstName').val('');
+      $('#lastName').val('');
+      $('#dependants').val('');
+      $('#addEmployee').show();
+      $('#updateEmployee').hide();
+
+      $('#employeeModal').modal('show');
+    });
+
+    $('#addEmployee').on('click', function() {
+      employeeClient.add($('#firstName').val(), $('#lastName').val(), parseInt($('#dependants').val()), function () {
+        loadTable();
+        $('#employeeModal').modal('hide');
+      });
+    });
+
+    $('#updateEmployee').on('click', function() {
+      employeeClient.update($('#id').val(), $('#firstName').val(), $('#lastName').val(), parseInt($('#dependants').val()), function () {
+        loadTable();
+        $('#employeeModal').modal('hide');
+      });
+    });
+
+    $('#employeesTable').on('click', '.fa-edit', function (e) {
+      var row = e.target.parentElement.parentElement;
+      $('#id').val(row.cells[0].innerText);
+      $('#firstName').val(row.cells[1].innerText);
+      $('#lastName').val(row.cells[2].innerText);
+      $('#dependants').val(row.cells[3].innerText);
+      $('#addEmployee').hide();
+      $('#updateEmployee').show();
+
+      $('#employeeModal').modal('show');
+    });
+
+    $('#employeesTable').on('click', '.fa-times', function (e) {
+      var row = e.target.parentElement.parentElement;
+      $('#deleteId').val(row.cells[0].innerText);
+      $('#deleteFirstName').text(row.cells[1].innerText);
+      $('#deleteLastName').text(row.cells[2].innerText);
+
+      $('#deleteModal').modal('show');
+    });
+
+    $('#deleteEmployee').on('click', function (e) {
+      employeeClient.delete($('#deleteId').val(), function () {
+        loadTable();
+        $('#deleteModal').modal('hide');
+      });
+    });
+
+    function loadTable() {
+      employeeClient.get(function (employees) {
+        var employeesTable = document.getElementById('employeesTable');
+        var employeesTBody = employeesTable.getElementsByTagName('tbody')[0];
+
+        employeesTBody.innerHTML = "";
+        if (employees.length > 0) {
+          employees.forEach(function (employee, index, array) {
+            var row = employeesTBody.insertRow();
+            row.insertCell().innerHTML = employee.id;
+            row.insertCell().innerHTML = employee.firstName;
+            row.insertCell().innerHTML = employee.lastName;
+            row.insertCell().innerHTML = employee.dependants;
+            row.insertCell().innerHTML = employee.salary.toFixed(2);
+            row.insertCell().innerHTML = employee.gross.toFixed(2);
+            row.insertCell().innerHTML = employee.benefitsCost.toFixed(2);
+            row.insertCell().innerHTML = employee.net.toFixed(2);
+
+            row.insertCell().innerHTML = '<i class="fas fa-edit"></i> &nbsp;&nbsp;&nbsp; <i class="fas fa-times"></i>';
+          });
+        } else {
+          var cell = employeesTBody.insertRow().insertCell();
+          cell.colSpan = 9;
+          cell.innerHTML = "No employees found.";
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

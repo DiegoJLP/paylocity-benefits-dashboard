@@ -1,0 +1,50 @@
+In LOGIN:
+  Logo/Nav: There is a Nav Bar : <a class="navbar-brand" href="/Prod/Benefits">Paylocity Benefits Dashboard</a> on the top left corner (causes the unexpected entry to Benefits Dashboard with 401 err)
+  Username: <input class="form-control" data-val="true" data-val-length="The field Username must be a string with a minimum length of 1 and a maximum length of 2147483647." data-val-length-min="1" data-val-required="The Username field is required." id="Username" maxlength="2147483647" name="Username" type="text" value="">
+  PassWord<input class="form-control" data-val="true" data-val-length="The field Password must be a string with a minimum length of 1 and a maximum length of 2147483647." data-val-length-min="1" data-val-required="The Password field is required." id="Password" maxlength="2147483647" name="Password" type="password">
+  Login: <button type="submit" class="btn btn-primary">Log In</button>
+In benefits:
+  NavBar/Logo: <a class="navbar-brand" href="/Prod/Benefits">Paylocity Benefits Dashboard</a> Perhaps a Component Object Model candidate?
+  LogOut: <a href="/Prod/Account/LogOut">Log Out</a>
+  Edit Action (for created employee): <i class="fas fa-edit"></i>
+    IN EDIT ACTION:
+      FirstName: <input type="text" id="firstName" name="firstName" class="form-control">
+      LastName: <input type="text" id="lastName" name="lastName" class="form-control">
+      Dependents: <input type="text" id="dependants" name="dependants" class="form-control">
+      Update Btn: <button type="button" class="btn btn-primary" id="updateEmployee">Update</button>
+      Cancel Btn: <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      X icon (to close Add Employee form): <span aria-hidden="true">×</span>
+
+  Delete "X" Action: <i class="fas fa-times"></i>
+    In DELETE ACTION:
+      Delete Btn: <button type="button" class="btn btn-primary" id="deleteEmployee">Delete</button>
+      Cancel Btn: <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      X icon (To close Delete Employee confirmation): <span aria-hidden="true">×</span>
+  
+  ADD Employee btn: <button type="button" id="add" class="btn btn-primary">Add Employee</button>
+    IN ADD ACTION:
+      FirstName: <input type="text" id="firstName" name="firstName" class="form-control">
+      LastName: <input type="text" id="lastName" name="lastName" class="form-control">
+      Dependents: <input type="text" id="dependants" name="dependants" class="form-control">
+      Add Btn: <button type="button" class="btn btn-primary" id="addEmployee" style="">Add</button>
+      Cancel Btn: <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      X icon (to close Add Employee form): <span aria-hidden="true">×</span>
+
+EMPLOYEE TABLE TO TARGET ROWS ACTIONS:
+<table class="table table-striped" id="employeesTable">
+    <thead class="thead-dark">
+      <tr>
+        <th>Id</th>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Dependents</th>
+        <th>Salary</th>
+        <th>Gross Pay</th>
+        <th>Benefits Cost</th>
+        <th>Net Pay</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody><tr><td>bd306dec-38ca-4539-8686-59f0c563c230</td><td>Steve</td><td>Rogers</td><td>1</td><td>52000.00</td><td>2000.00</td><td>57.69</td><td>1942.31</td><td><i class="fas fa-edit"></i> &nbsp;&nbsp;&nbsp; <i class="fas fa-times"></i></td></tr></tbody>
+  </table>
