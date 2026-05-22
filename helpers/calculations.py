@@ -24,17 +24,14 @@ def calculate_benefits(dependants: int = 0) -> BenefitResult:
       "dependants must be between 0 and 32"
     )
 
-  _total_annual = (
-      settings.employee_benefits_cost_per_year
-      + (dependants * settings.dependent_cost_per_year)
-  )
+  _total_annual = (settings.employee_benefits_cost_per_year + (dependants * settings.dependent_cost_per_year))
 
   benefits_cost = round(_total_annual / settings.paychecks_per_year, 2)
   gross = settings.salary_per_paycheck
   net = round(gross - benefits_cost, 2)
 
   return BenefitResult(
-      gross=gross,
-      benefits_cost=benefits_cost,
-      net=net,
+    gross=gross,
+    benefits_cost=benefits_cost,
+    net=net,
   )

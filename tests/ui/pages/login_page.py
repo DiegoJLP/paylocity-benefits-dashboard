@@ -14,6 +14,7 @@ Selectors confirmed from manual inspection:
 """
 
 import logging
+import re
 
 import allure
 from playwright.sync_api import Page, expect
@@ -91,4 +92,4 @@ class LoginPage(BasePage):
 
   def assert_on_login_page(self) -> None:
     """Assert we are still on the login page after a failed attempt."""
-    expect(self.page).to_have_url(f"**/{self.PATH}**")
+    expect(self.page).to_have_url(re.compile(re.escape(self.PATH)))

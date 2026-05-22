@@ -13,6 +13,7 @@ Responsibilities:
 """
 
 import logging
+import re
 
 import allure
 from playwright.sync_api import Locator, Page, expect
@@ -157,7 +158,7 @@ class BasePage:
       fragment: URL fragment to look for.
     """
     with allure.step(f"Assert URL contains '{fragment}'"):
-      expect(self.page).to_have_url(f"**{fragment}**")
+      expect(self.page).to_have_url(re.compile(re.escape(fragment)))
 
   def take_screenshot(self, name: str) -> None:
     """

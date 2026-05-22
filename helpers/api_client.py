@@ -2,7 +2,6 @@
 - Sets Authorization header on every request
 - Provides one method per endpoint
 - Logs every request and response
-- Attaches response details to Allure report
 - Used in API tests AND as setup/teardown for UI tests
 """
 
@@ -27,163 +26,107 @@ class ApiClient:
     )
 
   def dispose(self) -> None:
-    """
-    Clears the request context,
-    called this in fixture teardown to avoid resource leaks
-    """
+    """Clears the request context, called in fixture teardown to avoid resource leaks."""
     self._context.dispose()
 
   @allure.step("API POST /api/Employees")
   def create_employee(self, payload: dict):
-    """
-    Args:
-      payload: dict matching the Employee request schema (ideally from data_factory)
-    Expects:
-      Playwright APIResponse object
-    """
     logger.info("POST /api/Employees | payload: %s", payload)
-    response = self._context.post("/api/Employees", data=payload)
-    self._log_response(response)
+    response = self._context.post(
+      f"{settings.api_base_url}/api/Employees", data=payload
+    )
+    body_text = response.text()
+    logger.debug("Response | status: %s | body: %s", response.status, body_text[:500])
     return response
 
   @allure.step("API GET /api/Employees")
   def get_all_employees(self):
     logger.info("GET /api/Employees")
-    response = self._context.get("/api/Employees")
-    self._log_response(response)
+    response = self._context.get(
+      f"{settings.api_base_url}/api/Employees"
+    )
+    body_text = response.text()
+    logger.debug("Response | status: %s | body: %s", response.status, body_text[:500])
     return response
 
-  @allure.step("API GET /api/Employees/{id}")
+  @allure.step("API GET /api/Employees/{employee_id}")
   def get_employee(self, employee_id: str):
-    """
-    Args:
-      employee_id: UUID string of the employee to retrieve
-    """
     logger.info("GET /api/Employees/%s", employee_id)
-    response = self._context.get(f"/api/Employees/{employee_id}")
-    self._log_response(response)
+    response = self._context.get(
+      f"{settings.api_base_url}/api/Employees/{employee_id}"
+    )
+    body_text = response.text()
+    logger.debug("Response | status: %s | body: %s", response.status, body_text[:500])
     return response
 
   @allure.step("API PUT /api/Employees")
   def update_employee(self, payload: dict):
-    """
-    Update an existing employee.
-
-    Args:
-      payload: dict with id plus fields to update
-    """
     logger.info("PUT /api/Employees | payload: %s", payload)
-    response = self._context.put("/api/Employees", data=payload)
-    self._log_response(response)
+    response = self._context.put(
+      f"{settings.api_base_url}/api/Employees", data=payload
+    )
+    body_text = response.text()
+    logger.debug("Response | status: %s | body: %s", response.status, body_text[:500])
     return response
 
-  @allure.step("API DELETE /api/Employees/{id}")
+  @allure.step("API DELETE /api/Employees/{employee_id}")
   def delete_employee(self, employee_id: str):
-    """
-    Args:
-      employee_id: UUID string of the employee to delete
-    """
     logger.info("DELETE /api/Employees/%s", employee_id)
-    response = self._context.delete(f"/api/Employees/{employee_id}")
-    self._log_response(response)
+    response = self._context.delete(
+      f"{settings.api_base_url}/api/Employees/{employee_id}"
+    )
+    body_text = response.text()
+    logger.debug("Response | status: %s | body: %s", response.status, body_text[:500])
     return response
 
   @allure.step("API GET /api/Employees — no auth header")
   def get_all_employees_no_auth(self):
-    """
-    GET /api/Employees without Authorization header
-    Used in auth boundary tests — expects 401
-    """
     logger.info("GET /api/Employees (no auth)")
     response = self._context.get(
-      "/api/Employees",
+      f"{settings.api_base_url}/api/Employees",
       headers={
         "Authorization": "",
         "Content-Type": "application/json",
       },
     )
-    self._log_response(response)
+    body_text = response.text()
+    logger.debug("Response | status: %s | body: %s", response.status, body_text[:500])
     return response
 
   @allure.step("API GET /api/Employees — invalid auth token")
   def get_all_employees_bad_auth(self):
-    """
-    GET /api/Employees with an invalid token
-    Used in auth boundary tests — expects 401
-    """
     logger.info("GET /api/Employees (bad auth)")
     response = self._context.get(
-      "/api/Employees",
+      f"{settings.api_base_url}/api/Employees",
       headers={
         "Authorization": "Basic invalidtoken==",
         "Content-Type": "application/json",
       },
     )
-    self._log_response(response)
+    body_text = response.text()
+    logger.debug("Response | status: %s | body: %s", response.status, body_text[:500])
     return response
-
 
   def create_employee_and_get_id(self, payload: dict) -> str:
     """
-    Create an employee and return the ID
-
-    Raises AssertionError if creation fails and stops the test
-    with a message instead of a vague KeyError or AttributeError
-
-    Args:
-      payload: Valid employee payload.
-
-    Returns:
-      UUID string of the created employee.
+    Create an employee and return the ID.
+    Raises AssertionError if creation fails.
     """
     response = self.create_employee(payload)
     assert response.status == 200, (
       f"Setup failed: could not create test employee\n"
-      f"Status: {response.status}\n"
-      f"Body: {response.text()}"
+      f"Status: {response.status}"
     )
     data = response.json()
     employee_id = data.get("id")
-    assert employee_id, (
-      f"Response did not include id field: {data}"
-    )
+    assert employee_id, f"Response did not include id field: {data}"
     logger.info("Created employee with id: %s", employee_id)
     return employee_id
 
   def cleanup_employee(self, employee_id: str) -> None:
-    """
-    Delete an employee silently for teardown
-
-    Does not raise on 404 since the employee may have been deleted
-    by the test itself (delete_employee tests)
-
-    Args:
-        employee_id: UUID string of the employee to clean up
-    """
+    """Delete an employee silently for teardown. Does not raise on 404."""
     response = self.delete_employee(employee_id)
     if response.status not in (200, 404):
       logger.warning(
         "Unexpected status %s when cleaning up employee %s", response.status, employee_id,
       )
-
-  @staticmethod
-  def _log_response(response) -> None:
-    """
-    Log response status and truncated body
-    Attaches full details to the Allure report as a step artifact.
-    """
-    try:
-      body = response.text()[:500]
-    except Exception:
-      body = "<unreadable>"
-
-    logger.debug(
-      "Response | status: %s | body: %s",
-      response.status,
-      body,
-    )
-    allure.attach(
-      f"Status: {response.status}\nBody:\n{body}",
-      name="API Response",
-      attachment_type=allure.attachment_type.TEXT,
-    )
